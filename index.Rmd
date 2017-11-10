@@ -1,0 +1,63 @@
+---
+title: "Stock Prices of Tech Companies"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Nov 10, 2017
+
+```{r message=FALSE}
+library(plotly)
+library(dplyr)
+library(dplyr)
+
+symbols <- c('FB', 'AMZN', 'NFLX', 'GOOGL')
+companies <- c('Facebook', 'Amazon', 'Netflix', 'Alphabet (Google)')
+
+names(companies) <- symbols
+
+getPrices <- function(sym, current = TRUE, sy = 2017, sm = 1, sd = 1, ey, em, ed)
+{
+   
+  if(current){
+    system_time <- as.character(Sys.time())
+    ey <- as.numeric(substr(system_time, start = 1, stop = 4))
+    em <- as.numeric(substr(system_time, start = 6, stop = 7))
+    ed <- as.numeric(substr(system_time, start = 9, stop = 10))
+  }
+  url <- paste0("http://www.google.com/finance/historical",
+                   "?q=", sym,
+                   "&startdate=", paste(sm, sd, sy, sep = "+"),
+                   "&enddate=", paste(em, ed, ey, sep = "+"),
+                   "&output=csv")
+
+  renameColumns <- function(cn){
+    if (grepl('Date', cn)){
+      return('Date')
+    }
+    if(cn == 'Close'){
+      return('Price')
+    }
+    cn
+  }
+
+  df <- read.csv(url)
+  df$Stock <- rep(companies[sym], nrow(df))
+  names(df) <- sapply(names(df), renameColumns)
+  df[,c('Date', 'Price', 'Stock')]
+}
+
+getMultiQuotes <- function(symbols){
+  lapply(symbols, getPrices) %>% Reduce(function(dtf1,dtf2) merge(dtf1,dtf2, all=TRUE), .)
+}
+
+stocks <- getMultiQuotes(symbols)
+stocks$Date <- as.Date(stocks$Date, '%d-%b-%y')
+stocks <- stocks[with(stocks, order(Date)), ]
+plot_ly(stocks, x = ~Date, y = ~Price, color = ~Stock, mode = "lines") %>% layout(title="YTD Stock Prices for FANG")
+
+```
+

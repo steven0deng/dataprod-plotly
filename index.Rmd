@@ -1,15 +1,16 @@
 ---
 title: "Stock Prices of Tech Companies"
-output: html_document
+date: Nov 10, 2017
+output: ioslides_presentation
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Nov 10, 2017
+##
 
-```{r message=FALSE}
+```{r message=FALSE, echo=FALSE}
 library(plotly)
 library(dplyr)
 library(dplyr)
